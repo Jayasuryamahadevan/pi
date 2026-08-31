@@ -25,6 +25,7 @@ cp permission-gate.ts ~/.pi/agent/extensions/
 | `dirty-repo-guard.ts` | Prevents session changes with uncommitted git changes |
 | `sandbox/` | OS-level sandboxing using `@anthropic-ai/sandbox-runtime` with per-project config |
 | `gondolin/` | Route built-in tools and `!` commands into a Gondolin micro-VM |
+| `agent-id-card/` | Gives pi a signed, hash-chained [Agent ID Card](https://github.com/Jayasuryamahadevan/agent-id-card) identity per workspace, with an append-only action log and `/aic-status`/`/aic-reconcile` commands |
 
 ### Custom Tools
 
