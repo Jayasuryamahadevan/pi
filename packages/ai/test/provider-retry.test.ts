@@ -11,6 +11,7 @@ function providerError(status: number | undefined, headers?: Record<string, stri
 describe("provider request retries", () => {
 	afterEach(() => {
 		vi.useRealTimers();
+		vi.restoreAllMocks();
 	});
 
 	it("retries retryable provider errors", async () => {
@@ -22,6 +23,23 @@ describe("provider request retries", () => {
 
 		const result = retryProviderRequest(request, { maxRetries: 1 });
 		await vi.advanceTimersByTimeAsync(999);
+		expect(request).toHaveBeenCalledTimes(1);
+		await vi.advanceTimersByTimeAsync(1);
+
+		await expect(result).resolves.toBe("ok");
+		expect(request).toHaveBeenCalledTimes(2);
+	});
+
+	it("falls back to exponential backoff for malformed Retry-After dates", async () => {
+		vi.useFakeTimers();
+		vi.spyOn(Math, "random").mockReturnValue(0);
+		const request = vi
+			.fn<() => Promise<string>>()
+			.mockRejectedValueOnce(providerError(429, { "retry-after": "not-a-date" }))
+			.mockResolvedValue("ok");
+
+		const result = retryProviderRequest(request, { maxRetries: 1 });
+		await vi.advanceTimersByTimeAsync(499);
 		expect(request).toHaveBeenCalledTimes(1);
 		await vi.advanceTimersByTimeAsync(1);
 
